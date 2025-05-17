@@ -1,0 +1,114 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: psgr
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"] 
+    #   interval: 10s 
+    #   timeout: 5s
+    #   retries: 5
+    restart: on-failure
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dbnet
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "127.0.0.1:8080:8080"
+    links:
+      - "postgres:db"
+    networks:
+      - dbnet
+    depends_on:
+      - postgres
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+    networks:
+      - dbnet
+
+  telegram_bot:
+    build: .
+    container_name: tg_bot
+    env_file:
+      - .env
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+    volumes:
+      - ./:/app
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - "postgres:db"
+    networks:
+      - dbnet
+    command: ["python", "-m", "main"]
+
+  fastapi:
+    build: .
+    container_name: fastapi_cont
+    ports:
+      - "8000:8000"
+    links:
+      - "postgres:db"
+    networks:
+      - dbnet
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - postgres
+      - redis
+      - telegram_bot
+    env_file:
+      - .env
+    command: ["uvicorn", "src.webapp.server:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  scheduler:
+    build: .
+    container_name: scheduler
+    links:
+      - "postgres:db"
+    networks:
+      - dbnet
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - redis
+      - telegram_bot
+    command: ["arq", "src.scheduler.worker_settings.WorkerSettings"]
+  
+
+networks:
+  dbnet:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
