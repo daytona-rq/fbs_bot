@@ -1,5 +1,11 @@
+.venv
 .env
-.venv_ _ p y c a c h e _ _ / 
- 
- * . p y c 
- 
+
+__pycache__/
+*.py[cod]
+
+*.log
+*.tmp
+
+.idea/
+.vscode/
