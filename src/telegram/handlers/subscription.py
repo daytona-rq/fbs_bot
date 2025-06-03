@@ -27,7 +27,7 @@ async def sub_status(callback: CallbackQuery):
     sub_date = await db.check_sub_status(chat_id)
     if await is_sub(callback, chat_id):
         await callback.message.edit_text(
-                               text=f'🆗 Подписка активна до {sub_date.strftime("%Y-%m-%d %H-%M")}',
+                               text=f'🟢 Подписка активна до {sub_date.strftime("%Y-%m-%d %H-%M")}',
                                reply_markup=kb.sub_menu)
 
 @router.callback_query(F.data == 'buy_sub')

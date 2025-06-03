@@ -5,6 +5,8 @@ from aiogram.types import (
                         KeyboardButton)
 from aiogram.types.web_app_info import WebAppInfo
 from aiogram.filters.callback_data import CallbackData
+
+from src.telegram.utils.texts import Text
 from src.database.queries.orm import db
 
 
@@ -34,8 +36,9 @@ async def settings_kb(chat_id) -> InlineKeyboardMarkup:
         btn_text = "🔔 Включить уведомления"
         
     return InlineKeyboardMarkup(inline_keyboard=[
-                                [InlineKeyboardButton(text='🔑 Токен WB', callback_data='wb_token'), 
-                                InlineKeyboardButton(text='📝 Обновить артикулы', web_app=WebAppInfo(url=app_link))],
+                                [InlineKeyboardButton(text='🔑 Токен WB', callback_data='wb_token')], 
+                                [InlineKeyboardButton(text='📝 Обновить артикулы', web_app=WebAppInfo(url=app_link))],
+                                [InlineKeyboardButton(text='💰 Налоговая ставка', callback_data="set_tax")],
                                 [InlineKeyboardButton(text=btn_text, 
                                                       callback_data=MyCallback(
                                                                                 string="notification",
@@ -71,14 +74,19 @@ trial_kb = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 help_kb = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🎥 Видео', url='example.com'), 
-    InlineKeyboardButton(text='Текстовый гайд', callback_data='text_guide')],
+    [#InlineKeyboardButton(text='🎥 Видео', url='example.com'), 
+    InlineKeyboardButton(text="Текстовый гайд", callback_data='text_guide')],
     back_button])
 
 sub_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Оформить подписку (1 месяц)', callback_data='buy_sub')],
     back_button
 ])
+
+order_example = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Пример уведомления", callback_data="order_example")],
+     back_button]
+)
 
 
 

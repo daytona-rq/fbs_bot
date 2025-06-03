@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 import src.telegram.keyboards as kb
 from src.telegram.sign_up import Reg
+from src.telegram.utils.texts import Text
 from src.database.queries.orm import db
 
 
@@ -14,7 +15,7 @@ router = Router()
 @router.callback_query(F.data == 'trial')
 async def trial(callback: CallbackQuery):
     if await db.check_trial(callback.message.chat.id):
-        await callback.message.edit_text(text='Активировать пробный период?', reply_markup=kb.trial_kb)
+        await callback.message.edit_text(text=Text.TRIAL, reply_markup=kb.trial_kb)
     else:
         await callback.answer('')
         await callback.message.edit_text('Пробный период уже был использован',

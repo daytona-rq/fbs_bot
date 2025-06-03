@@ -191,5 +191,23 @@ class Orm:
         )
         result = result.scalar_one_or_none()
         return 0.0 if result is None else float(result)
+    
+    @connection
+    async def insert_tax(self, chat_id: int, tax_value: int, session):
+        await session.execute(
+            update(UsersOrm).
+            where(UsersOrm.chat_id == chat_id).
+            values(tax=tax_value)
+        )
+        await session.commit()
+
+    @connection
+    async def get_user_tax(self, chat_id: int, session) -> int:
+        result = await session.execute(
+            select(UsersOrm.tax).
+            where(UsersOrm.chat_id == chat_id)
+        )
+        result = result.scalar_one_or_none()
+        return result
 
 db = Orm()

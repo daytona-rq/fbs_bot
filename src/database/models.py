@@ -12,6 +12,7 @@ class UsersOrm(Base):
 
     chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, unique=True)
     wb_token: Mapped[str | None]
+    tax: Mapped[int] = mapped_column(default=0)
     send_notifications: Mapped[bool] = mapped_column(default=False)
     trial: Mapped[bool] = mapped_column(default=True)
     subscription_until: Mapped[datetime] = mapped_column(

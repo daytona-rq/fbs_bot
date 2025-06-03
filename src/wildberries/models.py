@@ -84,9 +84,7 @@ class WB_APIclient:
 wb_client = WB_APIclient()
 
 
-class Card:
-
-    tax = 7 
+class Card: 
     
     def __init__(self):
         self.volume = 0
@@ -102,6 +100,8 @@ class Card:
     @classmethod
     async def create(cls, session: aiohttp.ClientSession, order:dict, chat_id: int):
         self = cls()
+
+        self.tax_perc = await db.get_user_tax(chat_id)
 
         nmId = order.get('nmId')
         params = {
@@ -123,7 +123,7 @@ class Card:
         
             self.wb_commission = await self.calc_wb_commission(self.subject_id, self.price_before_spp)
 
-            self.cost_tax = round(self.price_before_spp * Card.tax / 100, 2)
+            self.cost_tax = round(self.price_before_spp * self.tax_perс / 100, 2)
 
             self.logistic_cost = await self.calc_logistic_cost()
             self.profit = round(
@@ -176,14 +176,15 @@ class Card:
         report = (
 f'''🔔 Поступил <b>новый заказ</b> по системе <b>Маркетплейс (FBS)</b>
 
-<b>Артикул продавца:</b> <code>{self.article}</code>
-<b>Цена продажи до СПП:</b> <code>{self.price_before_spp}₽</code>
-<b>Себестоимость:</b> <code>{self.selfcost}₽</code>
-<b>Комиссия Wildberries:</b> <code>{self.wb_commission}₽</code>
-<b>Логистика:</b> <code>{self.logistic_cost}₽</code>
-<b>Налог:</b> <code>{self.cost_tax}₽</code>
-<b>Ожидаемая прибыль с продажи:</b> <code>{self.profit}₽</code>
-<b>Приблизительная прибыль за день:</b> <code>{await self.get_daily_profit(chat_id)}₽</code>'''
+<b>Артикул продавца: <code>{self.article}</code></b>
+<b>Цена продажи до СПП: <code>{self.price_before_spp}₽</code></b>
+<b>Себестоимость: <code>{self.selfcost}₽</code></b>
+<b>Комиссия Wildberries: <code>{self.wb_commission}₽</code></b>
+<b>Логистика: <code>{self.logistic_cost}₽</code></b>
+<b>Налог: <code>{self.cost_tax}₽</code></b>
+<b>Ожидаемая прибыль с продажи: <code>{self.profit}₽</code></b>
+
+<b>💰 Приблизительная прибыль за день: <code>{await self.get_daily_profit(chat_id)}₽</code></b>'''
 )
     
         return report

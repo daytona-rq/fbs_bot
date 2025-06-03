@@ -23,9 +23,8 @@ async def cmd_start(message: Message):
             photo=FSInputFile(
                 path=file_path
             ),
-            caption="Приветсвенный текст",
-            reply_markup=kb.pinned_menu
+            reply_markup=await kb.start_menu(chat_id)
         )
+    else:
+        await message.answer('ᅠ', reply_markup=await kb.start_menu(chat_id))
         
-    await message.answer('<Меню>', 
-                         reply_markup=await kb.start_menu(chat_id))
